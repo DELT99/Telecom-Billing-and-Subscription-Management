@@ -104,8 +104,8 @@ Backend integration with database
 Real-world billing system simulation
 👨‍💻 Author
 
--Muhammad Talha
+-Muhammad Talha [LinkedIn](https://www.linkedin.com/in/muhammad-talha-700947323/)
 
--Khizar Hayyat
+-Khizar Hayyat [LinkedIn](https://www.linkedin.com/in/khizar-hayyat-189290338/)
 
 BS Computer Science – FAST NUCES
