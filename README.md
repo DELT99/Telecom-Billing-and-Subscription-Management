@@ -20,9 +20,13 @@ The project demonstrates real-world telecom operations including customer manage
 🌐 Flask-based Web Interface
 
 🛠️ Tech Stack
+
 Database: Oracle 11g Express Edition
+
 Backend: Python (Flask)
+
 Frontend: HTML, CSS, JavaScript
+
 Database Connectivity: oracledb
 
 
@@ -38,9 +42,9 @@ Username: dbproject
 Password: 123
 
 Run all provided .sql scripts in order to:
-Create tables
-Insert sample data
-Add triggers
+Create tables,
+Insert sample data,
+Add triggers,
 Create stored procedures
 
 ✔ After this step, the database is fully ready to operate on ORACLE 11G.
