@@ -4,13 +4,21 @@ A full-stack database-driven telecom billing system built using Oracle 11g, Flas
 The project demonstrates real-world telecom operations including customer management, subscriptions, billing, and automated invoice generation using stored procedures and triggers.
 
 🚀 Project Features
+
 👤 Customer & Account Management
+
 📦 Subscription Plan Handling
+
 💳 Automated Billing System
+
 ⚙️ Oracle Stored Procedures & Triggers
+
 📊 Monthly Invoice Generation
+
 🔐 Secure Database Authentication
+
 🌐 Flask-based Web Interface
+
 🛠️ Tech Stack
 Database: Oracle 11g Express Edition
 Backend: Python (Flask)
@@ -20,12 +28,15 @@ Database Connectivity: oracledb
 
 # ⚙️ How to Run the Project Locally
 1️⃣ Database Setup (Oracle 11g)
+
 Make sure Oracle 11g is installed and running.
 
 Create a new schema: (you can change these credentials with your choice)
 
-Username: dbproject  
+Username: dbproject 
+
 Password: 123
+
 Run all provided .sql scripts in order to:
 Create tables
 Insert sample data
