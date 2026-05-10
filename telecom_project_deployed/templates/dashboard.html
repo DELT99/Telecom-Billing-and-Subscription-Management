@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block page_title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="stats-grid">
+    <div class="stat-card glass-panel gradient-1">
+        <div class="stat-icon"><i class="fa-solid fa-users"></i></div>
+        <div class="stat-info">
+            <h3>Total Customers</h3>
+            <div class="stat-value">{{ stats.total_customers }}</div>
+        </div>
+    </div>
+    
+    <div class="stat-card glass-panel gradient-2">
+        <div class="stat-icon"><i class="fa-solid fa-file-invoice"></i></div>
+        <div class="stat-info">
+            <h3>Total Bills</h3>
+            <div class="stat-value">{{ stats.total_bills }}</div>
+        </div>
+    </div>
+    
+    <div class="stat-card glass-panel gradient-3">
+        <div class="stat-icon"><i class="fa-solid fa-clock-rotate-left"></i></div>
+        <div class="stat-info">
+            <h3>Pending Bills</h3>
+            <div class="stat-value">{{ stats.pending_bills }}</div>
+        </div>
+    </div>
+    
+    <div class="stat-card glass-panel gradient-4">
+        <div class="stat-icon"><i class="fa-solid fa-headset"></i></div>
+        <div class="stat-info">
+            <h3>Open Complaints</h3>
+            <div class="stat-value">{{ stats.complaints_count }}</div>
+        </div>
+    </div>
+</div>
+
+<div class="dashboard-widgets">
+    <div class="widget glass-panel">
+        <div class="widget-header">
+            <h3>System Status</h3>
+        </div>
+        <div class="widget-content">
+            <p><i class="fa-solid fa-check-circle" style="color: var(--success-color)"></i> Oracle DB Connection Active</p>
+            <p><i class="fa-solid fa-check-circle" style="color: var(--success-color)"></i> Billing Engine Online</p>
+            <p><i class="fa-solid fa-check-circle" style="color: var(--success-color)"></i> Gateway Active</p>
+        </div>
+    </div>
+
+    <div class="widget glass-panel">
+        <div class="widget-header">
+            <h3>Reports</h3>
+        </div>
+        <div class="widget-content">
+            <a href="{{ url_for('monthly_report') }}" class="btn btn-primary" style="width: 100%;">
+                <i class="fa-solid fa-chart-bar"></i> View Monthly Report
+            </a>
+            <p style="margin-top: 15px; font-size: 0.9em; color: #666;">Generate and view comprehensive monthly financial summaries, customer analytics, and performance metrics.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

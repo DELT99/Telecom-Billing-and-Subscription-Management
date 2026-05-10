@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Submit Complaint - Telecom Billing System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+</head>
+<body>
+    <!-- Sidebar -->
+    <nav class="sidebar">
+        <div class="sidebar-header">
+            <i class="fas fa-mobile-alt me-2"></i>
+            Telecom Billing
+        </div>
+        <ul class="sidebar-menu">
+            <li>
+                <a href="{{ url_for('dashboard') }}">
+                    <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('customers') }}">
+                    <i class="fas fa-users me-2"></i>Customers
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('billing') }}">
+                    <i class="fas fa-file-invoice-dollar me-2"></i>Billing
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('payments') }}">
+                    <i class="fas fa-credit-card me-2"></i>Payments
+                </a>
+            </li>
+            <li class="active">
+                <a href="{{ url_for('complaints') }}">
+                    <i class="fas fa-exclamation-triangle me-2"></i>Complaints
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('logout') }}">
+                    <i class="fas fa-sign-out-alt me-2"></i>Logout
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="top-bar">
+            <h1><i class="fas fa-plus-circle me-2"></i>Submit New Complaint</h1>
+            <a href="{{ url_for('complaints') }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Back to Complaints
+            </a>
+        </div>
+
+        <div class="container-fluid">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <div class="row justify-content-center">
+                <div class="col-md-8">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5>Complaint Details</h5>
+                        </div>
+                        <div class="card-body">
+                            <form method="POST">
+                                <div class="mb-3">
+                                    <label for="customer_id" class="form-label">Customer *</label>
+                                    <select class="form-select" id="customer_id" name="customer_id" required>
+                                        <option value="">Select Customer</option>
+                                        {% for customer in customers %}
+                                        <option value="{{ customer[0] }}">{{ customer[0] }} - {{ customer[1] }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="complaint_type" class="form-label">Complaint Type *</label>
+                                    <select class="form-select" id="complaint_type" name="complaint_type" required>
+                                        <option value="">Select Type</option>
+                                        <option value="BILLING">Billing Issue</option>
+                                        <option value="SERVICE">Service Problem</option>
+                                        <option value="TECHNICAL">Technical Issue</option>
+                                        <option value="OTHER">Other</option>
+                                    </select>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="priority" class="form-label">Priority</label>
+                                    <select class="form-select" id="priority" name="priority">
+                                        <option value="LOW">Low</option>
+                                        <option value="MEDIUM" selected>Medium</option>
+                                        <option value="HIGH">High</option>
+                                        <option value="URGENT">Urgent</option>
+                                    </select>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="description" class="form-label">Description *</label>
+                                    <textarea class="form-control" id="description" name="description" rows="5"
+                                              placeholder="Please describe your complaint in detail..." required></textarea>
+                                </div>
+
+                                <div class="d-grid">
+                                    <button type="submit" class="btn btn-warning btn-lg">
+                                        <i class="fas fa-paper-plane me-2"></i>Submit Complaint
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

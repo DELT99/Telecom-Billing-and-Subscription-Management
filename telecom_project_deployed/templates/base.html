@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Telecom Billing & Subscription Management</title>
+    <!-- Use Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    {% if session.get('logged_in') %}
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <i class="fa-solid fa-satellite-dish logo-icon"></i>
+                <h2>TeleKhata</h2>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="{{ url_for('dashboard') }}" class="{% if request.endpoint == 'dashboard' %}active{% endif %}">
+                    <i class="fa-solid fa-chart-pie"></i> Dashboard
+                </a>
+                <a href="{{ url_for('customers') }}" class="{% if request.endpoint == 'customers' %}active{% endif %}">
+                    <i class="fa-solid fa-users"></i> Customers
+                </a>
+                <a href="{{ url_for('subscriptions') }}" class="{% if request.endpoint in ['subscriptions', 'subscribe_plan'] %}active{% endif %}">
+                    <i class="fa-solid fa-sim-card"></i> Subscriptions
+                </a>
+                <a href="{{ url_for('billing') }}" class="{% if request.endpoint == 'billing' %}active{% endif %}">
+                    <i class="fa-solid fa-file-invoice-dollar"></i> Billing
+                </a>
+                <a href="{{ url_for('payments') }}" class="{% if request.endpoint == 'payments' %}active{% endif %}">
+                    <i class="fa-solid fa-credit-card"></i> Payments
+                </a>
+                <a href="{{ url_for('complaints') }}" class="{% if request.endpoint == 'complaints' %}active{% endif %}">
+                    <i class="fa-solid fa-headset"></i> Complaints
+                </a>
+                <a href="{{ url_for('monthly_report') }}" class="{% if request.endpoint == 'monthly_report' %}active{% endif %}">
+                    <i class="fa-solid fa-chart-bar"></i> Reports
+                </a>
+                <a href="{{ url_for('logout') }}" class="logout-btn">
+                    <i class="fa-solid fa-sign-out-alt"></i> Logout
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="topbar">
+                <div class="page-title">
+                    <h1>{% block page_title %}Overview{% endblock %}</h1>
+                </div>
+                <div class="user-profile">
+                    <div class="avatar"><i class="fa-solid fa-user"></i></div>
+                    <span>{{ session.get('username') }}</span>
+                </div>
+            </header>
+            
+            <div class="content-area">
+                <!-- Flash Messages -->
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        <div class="flash-messages">
+                            {% for category, message in messages %}
+                                <div class="alert alert-{{ category }}">
+                                    {{ message }}
+                                    <button class="close-btn" onclick="this.parentElement.style.display='none';">&times;</button>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                {% endwith %}
+                
+                {% block content %}{% endblock %}
+            </div>
+        </main>
+    </div>
+    {% else %}
+        <!-- For Login Page -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages login-flash">
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">
+                            {{ message }}
+                            <button class="close-btn" onclick="this.parentElement.style.display='none';">&times;</button>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+        {% block login_content %}{% endblock %}
+    {% endif %}
+
+    <!-- Custom JS -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

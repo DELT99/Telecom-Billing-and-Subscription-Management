@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+
+{% block page_title %}Customer Management{% endblock %}
+
+{% block content %}
+<div class="action-bar">
+    <button class="btn btn-primary" onclick="document.getElementById('addCustomerModal').style.display='flex'">
+        <i class="fa-solid fa-plus"></i> Add New Customer
+    </button>
+    <div class="search-box">
+        <i class="fa-solid fa-search"></i>
+        <input type="text" id="customerSearch" placeholder="Search customers..." onkeyup="filterTable('customerSearch', 'customerTable')">
+    </div>
+</div>
+
+<div class="table-container glass-panel">
+    <table class="data-table" id="customerTable">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>CNIC</th>
+                <th>Phone</th>
+                <th>Plan</th>
+                <th>Type</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for c in customers %}
+            <tr>
+                <td>{{ c.customer_id }}</td>
+                <td>{{ c.first_name }} {{ c.last_name }}</td>
+                <td>{{ c.cnic }}</td>
+                <td>{{ c.phone_number }}</td>
+                <td>
+                    {% if c.plan_name %}
+                        <span class="badge badge-info">{{ c.plan_name }}</span>
+                    {% else %}
+                        <span class="badge badge-secondary">N/A</span>
+                    {% endif %}
+                </td>
+                <td><span class="badge badge-info">{{ c.customer_type }}</span></td>
+                <td>
+                    <span class="badge {% if c.account_status == 'ACTIVE' %}badge-success{% else %}badge-danger{% endif %}">
+                        {{ c.account_status }}
+                    </span>
+                </td>
+                <td>
+                    <form action="{{ url_for('delete_customer', id=c.customer_id) }}" method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this customer?');">
+                        <button type="submit" class="btn-icon text-danger" title="Delete"><i class="fa-solid fa-trash"></i></button>
+                    </form>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="8" class="text-center">No customers found.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Add Customer Modal -->
+<div id="addCustomerModal" class="modal">
+    <div class="modal-content glass-panel">
+        <div class="modal-header">
+            <h2>Add Customer</h2>
+            <button class="close-btn" onclick="document.getElementById('addCustomerModal').style.display='none'">&times;</button>
+        </div>
+        <form action="{{ url_for('add_customer') }}" method="POST">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>First Name</label>
+                    <input type="text" name="first_name" required>
+                </div>
+                <div class="form-group">
+                    <label>Last Name</label>
+                    <input type="text" name="last_name" required>
+                </div>
+                <div class="form-group">
+                    <label>CNIC</label>
+                    <input type="text" name="cnic" required pattern="[0-9\-]+" title="Numbers and hyphens only">
+                </div>
+                <div class="form-group">
+                    <label>Date of Birth</label>
+                    <input type="date" name="date_of_birth" required>
+                </div>
+                <div class="form-group">
+                    <label>Gender</label>
+                    <select name="gender" required>
+                        <option value="M">Male</option>
+                        <option value="F">Female</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Phone Number</label>
+                    <input type="text" name="phone_number" required>
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" name="email">
+                </div>
+                <div class="form-group">
+                    <label>City</label>
+                    <input type="text" name="city" required>
+                </div>
+                <div class="form-group full-width">
+                    <label>Address</label>
+                    <textarea name="address" rows="2"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Customer Type</label>
+                    <select name="customer_type" required>
+                        <option value="PREPAID">PREPAID</option>
+                        <option value="POSTPAID">POSTPAID</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="document.getElementById('addCustomerModal').style.display='none'">Cancel</button>
+                <button type="submit" class="btn btn-primary">Save Customer</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

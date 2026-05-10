@@ -1,0 +1,169 @@
+{% extends "base.html" %}
+
+{% block page_title %}Billing Management{% endblock %}
+
+{% block content %}
+<div class="action-bar">
+    <button class="btn btn-primary" onclick="document.getElementById('generateBillModal').style.display='flex'">
+        <i class="fa-solid fa-file-invoice"></i> Generate Bill
+    </button>
+    <div class="search-box">
+        <i class="fa-solid fa-search"></i>
+        <input type="text" id="billSearch" placeholder="Search invoices..." onkeyup="filterTable('billSearch', 'billTable')">
+    </div>
+</div>
+
+<div class="table-container glass-panel">
+    <table class="data-table" id="billTable">
+        <thead>
+            <tr>
+                <th>Invoice ID</th>
+                <th>Customer Name</th>
+                <th>Plan</th>
+                <th>Total Amount</th>
+                <th>Due Date</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for inv in invoices %}
+            <tr>
+                <td>INV-{{ '%06d' % inv.invoice_id }}</td>
+                <td>{{ inv.customer_name }}</td>
+                <td>
+                    {% if inv.plan_name %}
+                        <span class="badge badge-info">{{ inv.plan_name }}</span>
+                    {% else %}
+                        <span class="badge badge-secondary">N/A</span>
+                    {% endif %}
+                </td>
+                <td>Rs. {{ "%.2f"|format(inv.total_amount) }}</td>
+                <td>{{ inv.due_date.strftime('%Y-%m-%d') if inv.due_date else 'N/A' }}</td>
+                <td>
+                    {% if inv.invoice_status == 'PAID' %}
+                        <span class="badge badge-success">PAID</span>
+                    {% elif inv.invoice_status == 'UNPAID' %}
+                        <span class="badge badge-danger">UNPAID</span>
+                    {% elif inv.invoice_status == 'PARTIAL' %}
+                        <span class="badge badge-warning">PARTIAL</span>
+                    {% else %}
+                        <span class="badge badge-secondary">{{ inv.invoice_status }}</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <form action="{{ url_for('update_bill_status', id=inv.invoice_id) }}" method="POST" style="display:inline;">
+                        <select name="status" onchange="this.form.submit()" class="status-select">
+                            <option value="">Update Status</option>
+                            <option value="UNPAID">UNPAID</option>
+                            <option value="PARTIAL">PARTIAL</option>
+                            <option value="PAID">PAID</option>
+                            <option value="OVERDUE">OVERDUE</option>
+                        </select>
+                    </form>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="7" class="text-center">No invoices found.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Generate Bill Modal -->
+<div id="generateBillModal" class="modal">
+    <div class="modal-content glass-panel">
+        <div class="modal-header">
+            <h2>Generate Invoice</h2>
+            <button class="close-btn" onclick="document.getElementById('generateBillModal').style.display='none'">&times;</button>
+        </div>
+        <form action="{{ url_for('generate_bill') }}" method="POST">
+            <div class="form-grid">
+                <div class="form-group full-width">
+                    <label>Select Customer</label>
+                    <select name="customer_id" required>
+                        <option value="">-- Choose Customer --</option>
+                        {% for c in customers %}
+                        <option value="{{ c.customer_id }}">
+                            {{ c.first_name }} {{ c.last_name }} ({{ c.cnic }})
+                            {% if c.plan_name %} — Plan: {{ c.plan_name }}{% endif %}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Period Start</label>
+                    <input type="date" name="period_start" required>
+                </div>
+                <div class="form-group">
+                    <label>Period End</label>
+                    <input type="date" name="period_end" required>
+                </div>
+                <div class="form-group">
+                    <label>Due Date</label>
+                    <input type="date" name="due_date" id="due_date" placeholder="Auto" >
+                </div>
+                <div class="form-group">
+                    <label>Usage Charges</label>
+                    <input type="number" step="0.01" name="usage_charges" id="u_charge" value="0" required onchange="calculateTotal()">
+                </div>
+                <div class="form-group">
+                    <label>Rental Charges</label>
+                    <input type="number" step="0.01" name="rental_charges" id="r_charge" value="0" required onchange="calculateTotal()">
+                </div>
+                <div class="form-group">
+                    <label>Tax Amount</label>
+                    <input type="number" step="0.01" name="tax_amount" id="t_amount" value="0" required onchange="calculateTotal()">
+                </div>
+                <div class="form-group">
+                    <label>Total Amount</label>
+                    <input type="number" step="0.01" name="total_amount" id="tot_amount" readonly>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="document.getElementById('generateBillModal').style.display='none'">Cancel</button>
+                <button type="submit" class="btn btn-primary">Generate</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function calculateTotal() {
+    let u = parseFloat(document.getElementById('u_charge').value) || 0;
+    let r = parseFloat(document.getElementById('r_charge').value) || 0;
+    let t = parseFloat(document.getElementById('t_amount').value) || 0;
+    document.getElementById('tot_amount').value = (u + r + t).toFixed(2);
+}
+
+function addDays(dateStr, days) {
+    const d = new Date(dateStr + "T00:00:00");
+    if (isNaN(d.getTime())) return "";
+    d.setDate(d.getDate() + days);
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, "0");
+    const dd = String(d.getDate()).padStart(2, "0");
+    return `${yyyy}-${mm}-${dd}`;
+}
+
+function syncDueDate() {
+    const end = document.querySelector('input[name="period_end"]').value;
+    const due = document.getElementById('due_date');
+    if (!end) return;
+    // Recommend due date = period_end + 10 days (also enforced server-side)
+    const recommended = addDays(end, 10);
+    if (!due.value || due.value < end) {
+        due.value = recommended;
+    }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    const endEl = document.querySelector('input[name="period_end"]');
+    const startEl = document.querySelector('input[name="period_start"]');
+    if (endEl) endEl.addEventListener("change", syncDueDate);
+    if (startEl) startEl.addEventListener("change", syncDueDate);
+});
+</script>
+{% endblock %}

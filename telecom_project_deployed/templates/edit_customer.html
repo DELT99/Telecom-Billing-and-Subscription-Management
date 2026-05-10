@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Customer - Telecom Billing System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+</head>
+<body>
+    <!-- Sidebar -->
+    <nav class="sidebar">
+        <div class="sidebar-header">
+            <i class="fas fa-mobile-alt me-2"></i>
+            Telecom Billing
+        </div>
+        <ul class="sidebar-menu">
+            <li>
+                <a href="{{ url_for('dashboard') }}">
+                    <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                </a>
+            </li>
+            <li class="active">
+                <a href="{{ url_for('customers') }}">
+                    <i class="fas fa-users me-2"></i>Customers
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('billing') }}">
+                    <i class="fas fa-file-invoice-dollar me-2"></i>Billing
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('payments') }}">
+                    <i class="fas fa-credit-card me-2"></i>Payments
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('complaints') }}">
+                    <i class="fas fa-exclamation-triangle me-2"></i>Complaints
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('logout') }}">
+                    <i class="fas fa-sign-out-alt me-2"></i>Logout
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="top-bar">
+            <h1><i class="fas fa-user-edit me-2"></i>Edit Customer</h1>
+            <a href="{{ url_for('customers') }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Back to Customers
+            </a>
+        </div>
+
+        <div class="container-fluid">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <div class="row justify-content-center">
+                <div class="col-md-8">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5>Edit Customer Information</h5>
+                        </div>
+                        <div class="card-body">
+                            <form method="POST">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="first_name" class="form-label">First Name *</label>
+                                        <input type="text" class="form-control" id="first_name" name="first_name"
+                                               value="{{ customer[1] }}" required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="last_name" class="form-label">Last Name *</label>
+                                        <input type="text" class="form-control" id="last_name" name="last_name"
+                                               value="{{ customer[2] }}" required>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="phone" class="form-label">Phone Number *</label>
+                                    <input type="text" class="form-control" id="phone" name="phone"
+                                           value="{{ customer[3] }}" required>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="email" class="form-label">Email</label>
+                                    <input type="email" class="form-control" id="email" name="email"
+                                           value="{{ customer[4] or '' }}">
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="city" class="form-label">City *</label>
+                                        <input type="text" class="form-control" id="city" name="city"
+                                               value="{{ customer[5] }}" required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="account_status" class="form-label">Account Status *</label>
+                                        <select class="form-select" id="account_status" name="account_status" required>
+                                            <option value="ACTIVE" {{ 'selected' if customer[9] == 'ACTIVE' else '' }}>Active</option>
+                                            <option value="SUSPENDED" {{ 'selected' if customer[9] == 'SUSPENDED' else '' }}>Suspended</option>
+                                            <option value="CLOSED" {{ 'selected' if customer[9] == 'CLOSED' else '' }}>Closed</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="address" class="form-label">Address</label>
+                                    <textarea class="form-control" id="address" name="address" rows="3">{{ customer[6] or '' }}</textarea>
+                                </div>
+
+                                <div class="d-grid">
+                                    <button type="submit" class="btn btn-primary btn-lg">
+                                        <i class="fas fa-save me-2"></i>Update Customer
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Phone number formatting
+        document.getElementById('phone').addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            e.target.value = value.slice(0, 11);
+        });
+    </script>
+</body>
+</html>

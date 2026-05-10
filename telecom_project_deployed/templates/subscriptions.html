@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+
+{% block page_title %}Subscriptions{% endblock %}
+
+{% block content %}
+<div class="action-bar">
+    <button class="btn btn-primary" onclick="document.getElementById('addSubscriptionModal').style.display='flex'">
+        <i class="fa-solid fa-plus"></i> New Subscription
+    </button>
+    <div class="search-box">
+        <i class="fa-solid fa-search"></i>
+        <input type="text" id="subSearch" placeholder="Search subscriptions..." onkeyup="filterTable('subSearch', 'subTable')">
+    </div>
+</div>
+
+<div class="table-container glass-panel">
+    <table class="data-table" id="subTable">
+        <thead>
+            <tr>
+                <th>Customer</th>
+                <th>Phone Number</th>
+                <th>Plan Name</th>
+                <th>Type</th>
+                <th>Rental</th>
+                <th>Start Date</th>
+                <th>End Date</th>
+                <th>Fee Paid</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for s in subscriptions %}
+            <tr>
+                <td>{{ s.customer_name }} (ID: {{ s.customer_id }})</td>
+                <td>{{ s.phone_number }}</td>
+                <td><span class="badge badge-info">{{ s.plan_name }}</span></td>
+                <td>{{ s.plan_type }}</td>
+                <td>${{ "%.2f"|format(s.monthly_rental|float) if s.monthly_rental else "0.00" }}</td>
+                <td>{{ s.start_date|strftime('%Y-%m-%d') }}</td>
+                <td>{{ s.end_date|strftime('%Y-%m-%d') if s.end_date else 'N/A' }}</td>
+                <td>${{ "%.2f"|format(s.subscription_fee_paid|float) if s.subscription_fee_paid else "0.00" }}</td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="8" class="text-center">No active subscriptions found.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Add Subscription Modal -->
+<div id="addSubscriptionModal" class="modal">
+    <div class="modal-content glass-panel">
+        <div class="modal-header">
+            <h2>New Subscription</h2>
+            <button class="close-btn" onclick="document.getElementById('addSubscriptionModal').style.display='none'">&times;</button>
+        </div>
+        <form action="{{ url_for('subscribe_plan') }}" method="POST">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Customer</label>
+                    <select name="customer_id" required>
+                        <option value="">Select Customer...</option>
+                        {% for c in customers %}
+                        <option value="{{ c.customer_id }}">{{ c.first_name }} {{ c.last_name }} (CNIC: {{ c.cnic }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Plan</label>
+                    <select name="plan_id" id="plan_id" required onchange="calculateEndDate()">
+                        <option value="" data-validity="0">Select Plan...</option>
+                        {% for p in plans %}
+                        <option value="{{ p.plan_id }}" data-validity="{{ p.validity_days }}">{{ p.plan_name }} ({{ p.plan_type }}) - ${{ p.monthly_rental }} [{{ p.validity_days }} Days]</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Start Date (Optional)</label>
+                    <input type="date" name="start_date" id="start_date" onchange="calculateEndDate()">
+                </div>
+                <div class="form-group">
+                    <label>Calculated End Date</label>
+                    <input type="text" id="calculated_end_date" disabled class="form-control" placeholder="Select a plan to see expiration">
+                </div>
+                <div class="form-group">
+                    <label>Fee Paid (Optional)</label>
+                    <input type="number" step="0.01" name="subscription_fee_paid" placeholder="Defaults to rental if empty">
+                </div>
+                <div class="checkbox-group full-width">
+                    <input type="checkbox" name="generate_invoice" id="generate_invoice" checked>
+                    <label for="generate_invoice" style="margin-bottom: 0;">Generate Invoice Automatically</label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="document.getElementById('addSubscriptionModal').style.display='none'">Cancel</button>
+                <button type="submit" class="btn btn-primary">Subscribe</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Initialize Start Date to today's date if empty
+    document.addEventListener("DOMContentLoaded", function() {
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById("start_date").value = today;
+    });
+
+    function calculateEndDate() {
+        const planSelect = document.getElementById("plan_id");
+        const startDateInput = document.getElementById("start_date").value;
+        const endDateField = document.getElementById("calculated_end_date");
+        
+        if (!planSelect.value) {
+            endDateField.value = "";
+            return;
+        }
+        
+        const selectedOption = planSelect.options[planSelect.selectedIndex];
+        const validityDays = parseInt(selectedOption.getAttribute("data-validity")) || 30;
+        
+        // Use selected start date, or today if empty
+        const startDateStr = startDateInput || new Date().toISOString().split('T')[0];
+        const startDate = new Date(startDateStr);
+        
+        // Add (validity_days - 1) days to compute the inclusive end date, just like the backend
+        startDate.setDate(startDate.getDate() + Math.max(validityDays, 1) - 1);
+        
+        const mm = String(startDate.getMonth() + 1).padStart(2, '0');
+        const dd = String(startDate.getDate()).padStart(2, '0');
+        const yyyy = startDate.getFullYear();
+        
+        endDateField.value = `${mm}/${dd}/${yyyy}`;
+    }
+</script>
+{% endblock %}
