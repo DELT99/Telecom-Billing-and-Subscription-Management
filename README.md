@@ -98,10 +98,11 @@ Database credentials must match your local setup.
 This project was developed as part of the Database Systems course (4th Semester) to demonstrate:
 
 Relational database design
-Normalization (up to 3NF)
+Normalization
 SQL programming
 Backend integration with database
 Real-world billing system simulation
+
 👨‍💻 Author
 
 -Muhammad Talha [LinkedIn](https://www.linkedin.com/in/muhammad-talha-700947323/)
