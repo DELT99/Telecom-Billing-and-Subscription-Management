@@ -53,6 +53,8 @@ Create stored procedures
 
 Install dependencies:
 
+pip install oracledb
+
 pip install flask cx_Oracle
 
 Open the project folder:
